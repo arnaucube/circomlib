@@ -62,3 +62,21 @@ exports.multiHash = (arr, key) => {
     }
     return F.affine(r);
 };
+
+// hashBuffer performs the MiMC7 hash over a buffer array, splitting the bytes into 31 bytes bigints,
+// and making chunks of two bigints to perform the MiMC7 hash
+exports.hashBuffer = (msgBuff) => {
+  const n = 31;
+  const msgArray = [];
+  const fullParts = Math.floor(msgBuff.length / n);
+  for (let i = 0; i < fullParts; i++) {
+    const v = bigInt.leBuff2int(msgBuff.slice(n * i, n * (i + 1)));
+    msgArray.push(v);
+  }
+  if (msgBuff.length % n !== 0) {
+    const v = bigInt.leBuff2int(msgBuff.slice(fullParts * n));
+    msgArray.push(v);
+  }
+  return exports.multiHash(msgArray);
+
+};
